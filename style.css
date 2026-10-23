@@ -1,0 +1,1477 @@
+/* =========================================================
+   A SONG OF ICE AND FIRE — The Story of Westeros
+   style.css
+
+   How this file is organised:
+   1.  Colours, fonts and shared shapes
+   2.  Base styles (page, text, labels, titles)
+   3.  Shared pieces (background art, ridges, fog, progress bar, nav)
+   4.  Reveal animations
+   5.  Sections 1 to 10, in the same order as the page
+   6.  Footer
+   7.  Tablet and mobile layouts
+   8.  Reduced motion
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   1. COLOURS, FONTS AND SHARED SHAPES
+   --------------------------------------------------------- */
+:root {
+  --black: #0a0a0c;
+  --charcoal: #131316;
+  --stone: #1c1c20;
+
+  --text: #d9d5cc;
+  --muted: #9a978f;
+  --silver: #b9bcc2;
+  --gold: #b8924a;
+  --gold-soft: #d4b678;
+  --crimson: #7a1c1c;
+  --ember: #c4562a;
+  --ice: #9fb3c5;
+
+  --line: rgba(184, 146, 74, 0.35);
+
+  --f-display: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
+  --f-head: 'Cinzel', Georgia, serif;
+  --f-body: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --f-label: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Mountain outlines. Used as "stencils" so one shape can be any colour */
+  --mask-a: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 300' preserveAspectRatio='none'%3E%3Cpath d='M0 300 L0 180 L80 120 L150 160 L260 60 L340 130 L430 90 L520 170 L640 40 L740 140 L830 100 L930 180 L1040 70 L1120 130 L1200 100 L1200 300 Z'/%3E%3C/svg%3E");
+  --mask-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 300' preserveAspectRatio='none'%3E%3Cpath d='M0 300 L0 140 L110 190 L200 110 L310 170 L420 70 L520 150 L610 100 L720 180 L830 80 L910 140 L1010 60 L1100 150 L1200 120 L1200 300 Z'/%3E%3C/svg%3E");
+
+  /* Film grain, drawn with a tiny SVG filter */
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* Lets the map colours blend smoothly when you pick a region */
+@property --c1 { syntax: '<color>'; inherits: false; initial-value: #2c3a48; }
+@property --c2 { syntax: '<color>'; inherits: false; initial-value: #566a7c; }
+@property --c3 { syntax: '<color>'; inherits: false; initial-value: #0d1218; }
+
+
+/* ---------------------------------------------------------
+   2. BASE STYLES
+   --------------------------------------------------------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: clamp(1.15rem, 1.05rem + 0.4vw, 1.38rem);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grain over the whole page */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background-image: var(--grain);
+  opacity: 0.07;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+h1, h2, h3, p, ol, ul { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+
+a { color: inherit; text-decoration: none; }
+
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+:focus-visible {
+  outline: 1px solid var(--gold-soft);
+  outline-offset: 4px;
+}
+
+::selection { background: var(--crimson); color: #fff; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Small labels */
+.label {
+  font-family: var(--f-label);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* Big headings */
+.title-large {
+  font-family: var(--f-head);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 5.4vw, 4.6rem);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  color: #ece6d8;
+}
+
+.title-huge {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(3rem, 10.5vw, 9.5rem);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: #f0eadc;
+}
+
+
+/* ---------------------------------------------------------
+   3. SHARED PIECES
+   --------------------------------------------------------- */
+
+/* Progress bar */
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.04);
+}
+.progress__bar {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* Floating particles */
+.particles {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Chapter indicator */
+.chapters {
+  position: fixed;
+  right: 1.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+}
+.chapters ol { display: flex; flex-direction: column; gap: 0.9rem; align-items: flex-end; }
+.chapters a {
+  position: relative;
+  display: block;
+  width: 14px;
+  height: 1px;
+  background: rgba(217, 213, 204, 0.4);
+  transition: width 0.4s ease, background 0.4s ease;
+}
+.chapters a::before {
+  content: "";
+  position: absolute;
+  inset: -8px -6px -8px -6px;
+}
+.chapters a::after {
+  content: attr(data-label);
+  position: absolute;
+  right: calc(100% + 14px);
+  top: 50%;
+  transform: translate(8px, -50%);
+  font-family: var(--f-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--gold-soft);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.chapters a:hover,
+.chapters a:focus-visible { width: 34px; background: var(--gold-soft); }
+.chapters a:hover::after,
+.chapters a:focus-visible::after { opacity: 1; transform: translate(0, -50%); }
+.chapters a.is-active { width: 34px; background: var(--gold); }
+
+/* Background art (CSS-drawn, always works even without photos) */
+.art { position: absolute; inset: 0; }
+
+.bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.75;
+}
+.js .bg-img { opacity: 0; }
+.js .bg-img.is-loaded { opacity: 0.75; transition: opacity 2.2s ease; }
+
+/* The zoom wrapper (script.js scales it while you scroll) */
+.scene__zoom,
+.house__zoom {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+/* Dark layer over every picture so text stays readable */
+.scene__zoom::after,
+.house__zoom::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--shade, linear-gradient(to bottom, rgba(5, 5, 7, 0.55), rgba(5, 5, 7, 0.3) 50%, rgba(5, 5, 7, 0.8)));
+  pointer-events: none;
+}
+
+/* Mountain silhouettes */
+.ridge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--h, 38%);
+  background: var(--ridge, #08080a);
+  -webkit-mask: var(--mask) center / 100% 100% no-repeat;
+  mask: var(--mask) center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+.ridge--a { --mask: var(--mask-a); }
+.ridge--b { --mask: var(--mask-b); }
+
+/* Fog */
+.fog {
+  position: absolute;
+  left: -25%;
+  width: 150%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 30% 50% at 20% 50%, rgba(190, 198, 210, 0.16), transparent 70%),
+    radial-gradient(ellipse 35% 45% at 60% 60%, rgba(190, 198, 210, 0.12), transparent 70%),
+    radial-gradient(ellipse 25% 55% at 85% 40%, rgba(190, 198, 210, 0.14), transparent 70%);
+  animation: drift 60s ease-in-out infinite alternate;
+}
+.fog--one { bottom: 14%; height: 38%; }
+.fog--two { bottom: -4%; height: 34%; opacity: 0.85; animation-duration: 85s; animation-direction: alternate-reverse; }
+.fog--cold {
+  background:
+    radial-gradient(ellipse 30% 50% at 20% 50%, rgba(150, 178, 205, 0.2), transparent 70%),
+    radial-gradient(ellipse 35% 45% at 60% 60%, rgba(150, 178, 205, 0.16), transparent 70%),
+    radial-gradient(ellipse 25% 55% at 85% 40%, rgba(150, 178, 205, 0.18), transparent 70%);
+}
+
+@keyframes drift {
+  from { transform: translate3d(-6%, 0, 0); }
+  to   { transform: translate3d(6%, 0, 0); }
+}
+
+/* Windows in the castle flicker very slightly */
+.castle-windows { animation: flicker 6s ease-in-out infinite; }
+@keyframes flicker {
+  0%, 100% { opacity: 0.9; }
+  35% { opacity: 0.55; }
+  50% { opacity: 1; }
+  70% { opacity: 0.7; }
+}
+
+
+/* ---------------------------------------------------------
+   4. REVEAL ANIMATIONS
+   (only active when JavaScript is running — the .js class)
+   --------------------------------------------------------- */
+
+/* Paragraphs and small items fade up */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 1.1s ease, transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--d, 0s);
+}
+.js [data-reveal].is-visible { opacity: 1; transform: none; }
+
+/* Headings rise word by word out of a hidden line */
+.w {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.18em;
+  margin-bottom: -0.18em;
+}
+.js [data-words] .w > span {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--i) * 80ms);
+}
+.js [data-words].is-visible .w > span { transform: none; }
+
+/* The main title appears letter by letter */
+.word { display: inline-block; white-space: nowrap; }
+.js [data-letters] .ch {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.4em);
+  filter: blur(8px);
+  transition: opacity 1.4s ease, transform 1.4s cubic-bezier(0.2, 0.7, 0.2, 1), filter 1.4s ease;
+  transition-delay: calc(1.6s + var(--i) * 55ms);
+}
+.js [data-letters].is-visible .ch { opacity: 1; transform: none; filter: none; }
+
+
+/* ---------------------------------------------------------
+   5. SECTIONS
+   --------------------------------------------------------- */
+
+/* ===== SECTION 1 — INTRO ===== */
+.intro {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+  background: #050608;
+}
+
+.intro__curtain { display: none; }
+.js .intro__curtain {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: #000;
+  pointer-events: none;
+  animation: curtainOut 2.6s ease 0.2s forwards;
+}
+@keyframes curtainOut { to { opacity: 0; visibility: hidden; } }
+
+.intro__scene { position: absolute; inset: 0; z-index: 0; }
+.intro__scene > * { position: absolute; }
+
+.intro__sky {
+  inset: -20% 0 0 0;
+  background: linear-gradient(to bottom, #050608 0%, #0c1016 42%, #231a1a 74%, #5a3320 100%);
+}
+.intro__moonglow {
+  inset: 0;
+  background: radial-gradient(circle at 72% 26%, rgba(190, 200, 215, 0.2), transparent 28%);
+}
+.intro__far { --ridge: #1a1e26; --h: 58%; opacity: 0.9; }
+.intro__mid { --ridge: #0f1217; --h: 44%; }
+.intro__castle {
+  left: 50%;
+  bottom: 16%;
+  width: min(72vw, 780px);
+  height: auto;
+  margin-left: calc(min(72vw, 780px) / -2);
+  color: #060608;
+}
+.intro__near { --ridge: #040405; --h: 26%; }
+.intro__photo { opacity: 0.4; mix-blend-mode: luminosity; }
+.js .intro__photo.is-loaded { opacity: 0.4; }
+.intro__vignette {
+  inset: 0;
+  background:
+    linear-gradient(to top, var(--black) 0%, transparent 28%),
+    radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.78) 100%);
+}
+
+.intro__content {
+  position: relative;
+  z-index: 6;
+  text-align: center;
+  padding: 0 6vw;
+  margin-top: -8vh;
+}
+.intro__label {
+  margin-bottom: 1.6rem;
+  opacity: 0;
+  animation: fadeUp 1.6s ease 2.8s forwards;
+}
+.intro__title {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 8.4vw, 7.4rem);
+  line-height: 1.06;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #ebe5d6;
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.8);
+}
+.intro__subtitle {
+  margin-top: 1.6rem;
+  font-style: italic;
+  font-size: clamp(1.3rem, 2.6vw, 2.1rem);
+  letter-spacing: 0.06em;
+  color: var(--gold-soft);
+  opacity: 0;
+  animation: fadeUp 1.8s ease 3.6s forwards;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+/* Without JavaScript the intro text just shows */
+html:not(.js) .intro__label,
+html:not(.js) .intro__subtitle { opacity: 1; animation: none; }
+
+/* Scroll cue */
+.scroll-cue {
+  position: absolute;
+  bottom: 2.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  opacity: 0;
+  animation: fadeUp 1.6s ease 4.6s forwards;
+}
+html:not(.js) .scroll-cue { opacity: 1; animation: none; }
+.scroll-cue .label { color: var(--silver); transition: color 0.4s ease; }
+.scroll-cue:hover .label { color: var(--gold-soft); }
+.scroll-cue__line {
+  position: relative;
+  width: 1px;
+  height: 58px;
+  background: rgba(212, 182, 120, 0.3);
+  overflow: hidden;
+}
+.scroll-cue__line::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: var(--gold-soft);
+  animation: scrollDot 2.4s ease-in-out infinite;
+}
+@keyframes scrollDot {
+  0%   { top: -40%; }
+  100% { top: 110%; }
+}
+
+
+/* ===== SECTION 2 — THE WORLD ===== */
+.world { position: relative; background: var(--black); }
+
+.world__landscape {
+  position: relative;
+  height: 78vh;
+  min-height: 420px;
+  overflow: hidden;
+  isolation: isolate;
+}
+.scene__bg { position: absolute; inset: -20% 0; z-index: -1; }
+.art--world {
+  background:
+    radial-gradient(ellipse at 70% 30%, rgba(180, 190, 205, 0.18), transparent 40%),
+    linear-gradient(to bottom, #0b0e13 0%, #1b232c 45%, #2c3236 70%, #1a1a1a 100%);
+}
+.world__ridge { --ridge: var(--black); --h: 30%; }
+.world__caption { position: absolute; left: 6vw; bottom: 3rem; }
+
+.world__text {
+  position: relative;
+  max-width: 1180px;
+  margin: -9vh auto 0;
+  padding: 0 6vw 16vh;
+}
+.world__text .title-large { max-width: 12ch; margin-bottom: 4.5rem; }
+
+.world__columns {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 1.6rem 5rem;
+  max-width: 68rem;
+  margin-left: 8%;
+}
+.world__columns p:nth-child(1) {
+  grid-row: 1 / span 2;
+  font-size: 1.28em;
+  line-height: 1.5;
+  color: #ebe6da;
+}
+.world__columns p:nth-child(2) { align-self: end; }
+
+.dropcap::first-letter {
+  float: left;
+  font-family: var(--f-display);
+  font-size: 4.3em;
+  line-height: 0.82;
+  padding: 0.06em 0.14em 0 0;
+  color: var(--gold);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem 4rem;
+  margin: 6rem 0 0 auto;
+  padding-top: 2rem;
+  max-width: 50rem;
+  border-top: 1px solid var(--line);
+}
+.facts li { display: flex; flex-direction: column; gap: 0.4rem; max-width: 14rem; }
+.facts strong {
+  font-family: var(--f-head);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  color: var(--gold-soft);
+}
+.facts span {
+  font-family: var(--f-label);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+
+/* ===== SECTION 3 — THE SEVEN KINGDOMS ===== */
+.kingdoms {
+  position: relative;
+  padding: 14vh 6vw 16vh;
+  background: linear-gradient(to bottom, var(--black), var(--charcoal) 20%, var(--charcoal) 80%, var(--black));
+}
+.kingdoms__head { max-width: 40rem; margin-bottom: 5rem; margin-left: 4%; }
+.kingdoms__head .label { margin-bottom: 1.2rem; }
+.kingdoms__head .title-large { margin-bottom: 1.6rem; }
+.kingdoms__intro { color: var(--muted); max-width: 32rem; }
+
+.kingdoms__layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 6rem;
+  align-items: start;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+/* The big picture panel */
+.region-panel {
+  position: sticky;
+  top: 9vh;
+  height: min(72vh, 640px);
+  min-height: 420px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  --c1: #2c3a48; --c2: #566a7c; --c3: #0d1218;
+}
+.region-panel__art {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--c3) 0%, var(--c1) 55%, var(--c2) 100%);
+  transition: --c1 1s ease, --c2 1s ease, --c3 1s ease;
+}
+.region-panel__art::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48%;
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-mask: var(--mask-a) center / 100% 100% no-repeat;
+  mask: var(--mask-a) center / 100% 100% no-repeat;
+}
+.region-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to top, rgba(5, 5, 7, 0.88) 0%, rgba(5, 5, 7, 0.4) 45%, transparent 75%);
+}
+.region-panel__body {
+  position: absolute;
+  z-index: 2;
+  left: 2.4rem;
+  right: 2.4rem;
+  bottom: 2.2rem;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.region-panel__body.is-changing { opacity: 0; transform: translateY(10px); }
+.region-panel__house { margin-bottom: 0.7rem; }
+.region-panel__name {
+  font-family: var(--f-head);
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 3.3rem);
+  line-height: 1.1;
+  color: #f0eadc;
+}
+.region-panel__seat {
+  margin-top: 0.3rem;
+  font-style: italic;
+  color: var(--gold-soft);
+}
+.region-panel__text { margin-top: 1rem; max-width: 30rem; color: #cdc8bd; }
+
+/* Colours for each region */
+.region-panel[data-region="north"]       { --c1: #2c3a48; --c2: #566a7c; --c3: #0d1218; }
+.region-panel[data-region="vale"]        { --c1: #28384a; --c2: #7d93a8; --c3: #0f1419; }
+.region-panel[data-region="riverlands"]  { --c1: #1f3a2f; --c2: #3f6b57; --c3: #0c1511; }
+.region-panel[data-region="westerlands"] { --c1: #4a2a14; --c2: #b8924a; --c3: #140c06; }
+.region-panel[data-region="reach"]       { --c1: #2b3a1c; --c2: #7d8f3d; --c3: #10150a; }
+.region-panel[data-region="stormlands"]  { --c1: #1d2530; --c2: #4e5b68; --c3: #0b0e12; }
+.region-panel[data-region="dorne"]       { --c1: #5a2a12; --c2: #c27a35; --c3: #1a0d05; }
+
+/* The list of regions */
+.region-list { padding-top: 1rem; }
+.region-list li:nth-child(even) { padding-left: 3rem; }
+.region {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.2rem 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 1rem;
+  align-items: baseline;
+  width: 100%;
+  padding: 1.3rem 0;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  transition: color 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.region::before {
+  content: "";
+  position: absolute;
+  left: -1.4rem;
+  top: 50%;
+  width: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width 0.4s ease;
+}
+.region__no {
+  grid-row: 1 / span 2;
+  font-family: var(--f-head);
+  font-size: 0.95rem;
+  color: var(--gold);
+  opacity: 0.8;
+}
+.region__name {
+  font-family: var(--f-head);
+  font-size: clamp(1.4rem, 2.5vw, 2.1rem);
+  line-height: 1.2;
+}
+.region__seat {
+  font-style: italic;
+  font-size: 1.05rem;
+  opacity: 0.75;
+}
+.region:hover,
+.region:focus-visible { color: #ece6d8; transform: translateX(10px); }
+.region.is-active { color: var(--gold-soft); transform: translateX(10px); }
+.region:hover::before,
+.region.is-active::before { width: 1rem; }
+
+.kingdoms__note {
+  max-width: 34rem;
+  margin: 6rem 0 0 auto;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--line);
+  font-style: italic;
+  color: var(--muted);
+}
+
+
+/* ===== SECTION 4 — THE GREAT HOUSES ===== */
+.houses { position: relative; background: var(--black); }
+.houses__head {
+  max-width: 44rem;
+  padding: 14vh 6vw 10vh;
+  margin-left: 6%;
+}
+.houses__head .label { margin-bottom: 1.2rem; }
+.houses__head .title-large { margin-bottom: 1.6rem; }
+.houses__head p:last-child { color: var(--muted); }
+
+/* Shared by all six houses */
+.house {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 12vh 7vw;
+  overflow: hidden;
+  isolation: isolate;
+}
+.house__bg { position: absolute; inset: 0; z-index: -1; }
+.house__content { position: relative; z-index: 2; max-width: 38rem; }
+.house__motto {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+  line-height: 1.1;
+  margin-bottom: 1.2rem;
+}
+.house__name {
+  font-family: var(--f-head);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 5vw, 4.2rem);
+  line-height: 1.08;
+  color: #f0eadc;
+  margin-bottom: 1.2rem;
+}
+.house__seat { margin-bottom: 1.6rem; line-height: 1.8; }
+.house__text { color: #d3cec3; max-width: 32rem; }
+
+/* --- STARK: cold, snowy, mysterious --- */
+.house--stark {
+  align-items: flex-end;
+  justify-content: center;
+  text-align: center;
+}
+.house--stark .house__content { margin: 0 auto; }
+.house--stark .house__motto { color: #cfdbe7; }
+.house--stark .house__seat { color: var(--ice); }
+.house--stark .house__text { margin: 0 auto; }
+.art--stark { background: linear-gradient(to bottom, #0b121a 0%, #1a2836 48%, #35495c 100%); }
+.art--stark::after,
+.art--winterfell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(circle, rgba(235, 242, 250, 0.55) 1px, transparent 1.6px),
+    radial-gradient(circle, rgba(235, 242, 250, 0.35) 1px, transparent 2px);
+  background-size: 90px 90px, 140px 140px;
+  background-position: 0 0, 40px 60px;
+  animation: snowFall 24s linear infinite;
+}
+@keyframes snowFall {
+  to { background-position: 0 900px, 40px 1320px; }
+}
+.house--stark { --shade: linear-gradient(to bottom, rgba(5, 8, 12, 0.35), rgba(5, 8, 12, 0.2) 40%, rgba(5, 8, 12, 0.85)); }
+.house__ghost {
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--f-display);
+  font-size: clamp(8rem, 30vw, 28rem);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(190, 210, 230, 0.16);
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+}
+
+/* --- LANNISTER: golden, powerful, royal --- */
+.house--lannister {
+  align-items: center;
+  justify-content: flex-end;
+}
+.art--lannister {
+  background:
+    radial-gradient(ellipse at 25% 55%, rgba(184, 146, 74, 0.5), transparent 55%),
+    linear-gradient(135deg, #190908 0%, #4f0f0f 48%, #8a6a2c 100%);
+}
+.house--lannister { --shade: linear-gradient(to left, rgba(8, 4, 3, 0.55), rgba(8, 4, 3, 0.15)); }
+.house__frame {
+  position: absolute;
+  inset: 2rem;
+  z-index: 1;
+  border: 1px solid rgba(212, 182, 120, 0.4);
+  pointer-events: none;
+}
+.house__frame::after {
+  content: "";
+  position: absolute;
+  inset: 0.6rem;
+  border: 1px solid rgba(212, 182, 120, 0.18);
+}
+.house--lannister .house__content {
+  padding: 3rem 3rem 3rem 3.2rem;
+  background: rgba(14, 8, 6, 0.74);
+  border: 1px solid rgba(212, 182, 120, 0.3);
+  margin-right: 4vw;
+}
+.house--lannister .house__motto { color: var(--gold-soft); }
+.house--lannister .house__seat { color: var(--gold); }
+
+/* --- TARGARYEN: fiery, ancient, dramatic --- */
+.house--targaryen {
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+.art--targaryen {
+  background:
+    radial-gradient(ellipse 70% 60% at 28% 108%, #b3341a 0%, #5a0f0f 34%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 85% 20%, rgba(122, 28, 28, 0.35), transparent 70%),
+    linear-gradient(#040304, #130506);
+}
+.house--targaryen { --shade: linear-gradient(to top, rgba(4, 3, 4, 0.6), rgba(4, 3, 4, 0.1) 60%); }
+.house--targaryen .house__content {
+  padding-left: 2.2rem;
+  border-left: 1px solid rgba(196, 86, 42, 0.6);
+  max-width: 42rem;
+}
+.house--targaryen .house__motto {
+  font-size: clamp(2.4rem, 6.4vw, 5.4rem);
+  color: #e0683c;
+}
+.house--targaryen .house__seat { color: #c98a6c; }
+
+/* --- BARATHEON: black and gold, the stag banner --- */
+.house--baratheon {
+  align-items: center;
+  padding-left: 0;
+  gap: clamp(2rem, 7vw, 7rem);
+}
+.house__band {
+  position: relative;
+  z-index: 2;
+  align-self: stretch;
+  flex: 0 0 clamp(80px, 13vw, 180px);
+  margin: -12vh 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #b08a2e;
+  color: #0a0a0a;
+  font-family: var(--f-display);
+  font-size: clamp(2.2rem, 5.6vw, 4.6rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+.art--baratheon {
+  background:
+    linear-gradient(120deg, #0a0a0a 0%, #17140a 55%, #2d2410 100%);
+}
+.art--baratheon::after {
+  content: "";
+  position: absolute;
+  right: -8%;
+  top: 8%;
+  width: 46%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(176, 138, 46, 0.35);
+  transform: rotate(45deg);
+}
+.house--baratheon .house__motto { color: #c9a23c; }
+.house--baratheon .house__seat { color: #a9a08a; }
+
+/* --- GREYJOY: salt, sea and iron --- */
+.house--greyjoy {
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: 16vh;
+}
+.art--greyjoy { background: linear-gradient(to bottom, #050b0e 0%, #0d2128 60%, #17353d 100%); }
+.house--greyjoy { --shade: linear-gradient(to bottom, rgba(3, 7, 9, 0.45), rgba(3, 7, 9, 0.2) 60%, rgba(3, 7, 9, 0.6)); }
+.house__waves {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 24%;
+  z-index: 1;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40'%3E%3Cpath d='M0 20 Q50 0 100 20 T200 20 V40 H0 Z' fill='%23061014'/%3E%3C/svg%3E") repeat-x bottom / 420px 90px;
+  animation: waves 40s linear infinite;
+  pointer-events: none;
+}
+@keyframes waves { to { background-position: -420px bottom; } }
+.house--greyjoy .house__content { text-align: right; margin-right: 2vw; }
+.house--greyjoy .house__text { margin-left: auto; }
+.house--greyjoy .house__motto { color: #8fb1b8; }
+.house--greyjoy .house__seat { color: var(--gold); }
+
+/* --- TYRELL: gardens and roses --- */
+.house--tyrell {
+  align-items: center;
+  justify-content: center;
+}
+.art--tyrell { background: linear-gradient(to bottom, #09140b 0%, #18331b 55%, #3a4a1c 100%); }
+.house--tyrell { --shade: linear-gradient(to bottom, rgba(5, 10, 6, 0.45), rgba(5, 10, 6, 0.35)); }
+.house__arch {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 40rem);
+  padding: 14vh 5vw 9vh;
+  text-align: center;
+  background: rgba(7, 15, 8, 0.62);
+  border: 1px solid rgba(212, 182, 120, 0.45);
+  border-radius: 50vw 50vw 0 0;
+}
+.house__arch .house__content { max-width: none; }
+.house__arch .house__text { margin: 0 auto; }
+.house--tyrell .house__motto { color: #cdb86f; }
+.house--tyrell .house__seat { color: #9fb38a; }
+
+
+/* ===== SECTION 5 — THE IRON THRONE ===== */
+.throne {
+  position: relative;
+  background: var(--black);
+  overflow: hidden;
+  isolation: isolate;
+}
+.throne__bg { position: absolute; inset: 0; z-index: -1; }
+.art--throne {
+  background:
+    radial-gradient(ellipse at 28% 62%, rgba(122, 28, 28, 0.38), transparent 55%),
+    linear-gradient(#0a0a0c, #15100f 60%, #0a0a0c);
+}
+.throne { --shade: linear-gradient(to right, rgba(5, 5, 7, 0.35), rgba(5, 5, 7, 0.8)); }
+
+.throne__layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.throne__figure {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 2vw 6vh 6vw;
+}
+.throne__svg { width: 100%; max-height: 88vh; filter: drop-shadow(0 0 40px rgba(0, 0, 0, 0.8)); }
+
+.throne__text { padding: 22vh 6vw 30vh 3vw; }
+.throne__text .label { margin-bottom: 1.2rem; }
+.throne__text .title-large { margin-bottom: 38vh; }
+.throne__line {
+  max-width: 28rem;
+  margin-bottom: 36vh;
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  line-height: 1.45;
+  color: #e8e2d4;
+}
+.js .throne__line { opacity: 0; }
+.throne__line:last-child { margin-bottom: 0; }
+.throne__line--final {
+  font-style: italic;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  color: var(--gold-soft);
+}
+
+
+/* ===== SECTION 6 — THE WAR OF FIVE KINGS ===== */
+.war {
+  position: relative;
+  padding: 14vh 6vw 18vh;
+  background: linear-gradient(to bottom, var(--black), #100d0c 25%, #100d0c 85%, var(--black));
+}
+.war__head { max-width: 42rem; margin: 0 auto 12vh; text-align: center; }
+.war__head .label { margin-bottom: 1.2rem; }
+.war__head .title-large { margin-bottom: 1.6rem; }
+.war__head p:last-child { color: var(--muted); }
+
+.timeline { position: relative; max-width: 1180px; margin: 0 auto; }
+.timeline__line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(184, 146, 74, 0.15);
+}
+.timeline__line span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--gold);
+  transform-origin: top center;
+  transform: scaleY(0);
+}
+
+.event {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6rem;
+  align-items: center;
+  margin-bottom: 14vh;
+}
+.event:last-child { margin-bottom: 0; }
+.event::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  margin: -5px 0 0 -5px;
+  background: var(--black);
+  border: 1px solid var(--gold);
+  transform: rotate(45deg);
+  z-index: 2;
+}
+.event__art {
+  position: relative;
+  height: clamp(240px, 32vw, 380px);
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.event__art-inner { inset: -15% 0; }
+.event__photo { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.88; filter:brightness(.62) contrast(1.08); }
+.event__art-inner::after { content:""; position:absolute; inset:0; background:linear-gradient(to bottom, rgba(5,5,7,.15), rgba(5,5,7,.35) 55%, rgba(5,5,7,.75)); pointer-events:none; }
+.event__art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(5, 5, 7, 0.6), transparent 60%);
+}
+.event__tag { margin-bottom: 0.8rem; }
+.event__title {
+  font-family: var(--f-head);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 2.8vw, 2.3rem);
+  line-height: 1.2;
+  color: #ece6d8;
+  margin-bottom: 1rem;
+}
+.event__body p:last-child { color: #c9c4b8; max-width: 27rem; }
+
+/* Even events: picture on the right */
+.event:nth-child(even) .event__art { order: 2; }
+.event:nth-child(even) .event__body { order: 1; text-align: right; }
+.event:nth-child(even) .event__body p:last-child { margin-left: auto; }
+
+/* Slide in from alternating sides */
+.js .event .event__art,
+.js .event .event__body {
+  opacity: 0;
+  transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.js .event:nth-child(odd) .event__art  { transform: translateX(-50px); }
+.js .event:nth-child(odd) .event__body { transform: translateX(50px); transition-delay: 0.15s; }
+.js .event:nth-child(even) .event__art { transform: translateX(50px); }
+.js .event:nth-child(even) .event__body { transform: translateX(-50px); transition-delay: 0.15s; }
+.js .event.is-visible .event__art,
+.js .event.is-visible .event__body { opacity: 1; transform: none; }
+
+/* Pictures for each event */
+.art--event1 { background: radial-gradient(ellipse at 50% 90%, rgba(184, 146, 74, 0.5), transparent 60%), linear-gradient(#170a09, #4a1010); }
+.art--event2 { background: radial-gradient(ellipse at 30% 30%, rgba(190, 210, 230, 0.35), transparent 55%), linear-gradient(#0e1620, #34495c); }
+.art--event3 { background: radial-gradient(ellipse at 60% 20%, rgba(150, 180, 150, 0.2), transparent 50%), linear-gradient(#060d08, #1a3320); }
+.art--event4 { background: radial-gradient(ellipse at 50% 60%, rgba(220, 120, 50, 0.35), transparent 50%), linear-gradient(#110a14, #2c1a24); }
+.art--event5 { background: radial-gradient(ellipse at 50% 70%, rgba(120, 220, 90, 0.45), transparent 55%), linear-gradient(#050b07, #12331a); }
+.art--event6 { background: radial-gradient(ellipse at 50% 100%, rgba(160, 20, 20, 0.6), transparent 60%), linear-gradient(#080304, #2a0707); }
+
+
+/* ===== SECTION 7 — THE DRAGONS ===== */
+.dragons {
+  position: relative;
+  padding: 18vh 6vw 20vh;
+  background: #060405;
+  overflow: hidden;
+  isolation: isolate;
+}
+.dragons__bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+.dragons { --shade: linear-gradient(to bottom, rgba(5, 3, 4, 0.7), rgba(5, 3, 4, 0.3) 50%, rgba(5, 3, 4, 0.85)); }
+.art--dragons {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 105%, rgba(180, 52, 26, 0.55), transparent 70%),
+    radial-gradient(ellipse 40% 40% at 80% 15%, rgba(122, 28, 28, 0.3), transparent 70%),
+    linear-gradient(#050304, #150607 70%, #260a08);
+}
+.wing {
+  position: absolute;
+  top: 12%;
+  width: 62%;
+  height: auto;
+  fill: rgba(90, 14, 14, 0.28);
+  stroke: rgba(196, 86, 42, 0.28);
+  stroke-width: 1.5;
+  z-index: 1;
+}
+.wing--left { left: -14%; }
+.wing--right { right: -14%; transform: scaleX(-1); }
+
+.dragons__content {
+  position: relative;
+  z-index: 3;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.dragons__content .label { margin-bottom: 1.4rem; }
+.dragons__content .title-huge { margin-bottom: 7vh; color: #f3e8d8; }
+
+.dragons__story {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 2rem 4rem;
+  max-width: 58rem;
+  margin-left: 14%;
+  margin-bottom: 12vh;
+}
+.dragons__story p:first-child { font-size: 1.2em; color: #ece5d6; }
+
+.dragons__names li {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 2rem;
+  padding: 2rem 0 1.6rem;
+  border-top: 1px solid rgba(196, 86, 42, 0.25);
+  transition: border-color 0.5s ease, padding-left 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.dragons__names li:last-child { border-bottom: 1px solid rgba(196, 86, 42, 0.25); }
+.dragon-name {
+  font-family: var(--f-display);
+  font-size: clamp(2.6rem, 8vw, 7rem);
+  line-height: 1;
+  color: #d9cdbb;
+  transition: color 0.5s ease;
+}
+.dragon-note { color: #b9b1a3; max-width: 22rem; font-size: 1.05em; }
+.dragons__names li:hover { border-color: var(--ember); padding-left: 1.4rem; }
+.dragons__names li:hover .dragon-name { color: var(--ember); }
+
+.dragons__closing {
+  max-width: 34rem;
+  margin: 12vh 0 0 auto;
+  font-style: italic;
+  color: var(--gold-soft);
+}
+
+
+/* ===== SECTION 8 — THE NIGHT KING ===== */
+.nightking {
+  position: relative;
+  padding: 20vh 6vw;
+  min-height: 100vh;
+  background: #0a0f14;
+  overflow: hidden;
+  isolation: isolate;
+}
+.nightking__bg { position: absolute; inset: 0; z-index: -1; }
+.nightking { --shade: linear-gradient(to bottom, rgba(8, 12, 16, 0.55), rgba(8, 12, 16, 0.25) 50%, rgba(8, 12, 16, 0.65)); }
+.art--nightking {
+  background:
+    radial-gradient(ellipse 50% 40% at 70% 20%, rgba(150, 180, 205, 0.2), transparent 70%),
+    linear-gradient(to bottom, #090d12 0%, #17222d 45%, #34475a 100%);
+}
+.nightking__bg .fog--one { bottom: 8%; height: 46%; }
+.nightking__bg .fog--two { bottom: -6%; height: 40%; }
+
+.nightking__content {
+  position: relative;
+  z-index: 3;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.nightking__content .label { color: var(--ice); margin-bottom: 1.2rem; }
+.nightking__content .title-large { color: #e3edf5; margin-bottom: 8vh; }
+
+.nightking__grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 4rem 6rem;
+  align-items: start;
+}
+.nightking__lead {
+  font-style: italic;
+  font-size: clamp(1.7rem, 3.2vw, 2.7rem);
+  line-height: 1.25;
+  color: var(--ice);
+  position: sticky;
+  top: 20vh;
+}
+.nightking__body p { margin-bottom: 1.6rem; color: #cfdbe6; max-width: 34rem; }
+.nightking__body p:last-child { margin-bottom: 0; }
+
+
+/* ===== SECTION 9 — THE BATTLE OF WINTERFELL ===== */
+.winterfell {
+  position: relative;
+  min-height: 115vh;
+  display: flex;
+  align-items: center;
+  padding: 18vh 6vw 24vh;
+  background: #05080c;
+  overflow: hidden;
+  isolation: isolate;
+}
+.winterfell__bg { position: absolute; inset: 0; z-index: -1; }
+.winterfell { --shade: linear-gradient(to bottom, rgba(3, 5, 8, 0.5), rgba(3, 5, 8, 0.25) 50%, rgba(3, 5, 8, 0.75)); }
+.art--winterfell { background: linear-gradient(to bottom, #04060a 0%, #0f1822 55%, #26384a 100%); }
+.winterfell__castle {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  width: min(80vw, 900px);
+  height: auto;
+  margin-left: calc(min(80vw, 900px) / -2);
+  color: #04060a;
+  opacity: 0.9;
+}
+.winterfell__ridge { --ridge: #030405; --h: 24%; }
+.winterfell__bg .fog--one { bottom: 6%; height: 40%; }
+
+.winterfell__content {
+  position: relative;
+  z-index: 3;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+.winterfell__content .label { color: var(--ice); margin-bottom: 1.2rem; }
+.winterfell__content .title-huge { color: #edf2f6; }
+.winterfell__subtitle {
+  margin: 1rem 0 5vh;
+  font-style: italic;
+  font-size: clamp(1.3rem, 2.4vw, 1.9rem);
+  color: var(--ice);
+}
+.winterfell__text { max-width: 33rem; margin-left: auto; }
+.winterfell__text p { margin-bottom: 1.4rem; color: #d3dde6; }
+.winterfell__text p:last-child { margin-bottom: 0; }
+
+
+/* ===== SECTION 10 — THE END ===== */
+.end {
+  position: relative;
+  min-height: 110vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18vh 6vw 26vh;
+  background: #050304;
+  overflow: hidden;
+  isolation: isolate;
+  text-align: center;
+}
+.end__bg { position: absolute; inset: 0; z-index: -1; }
+.end { --shade: linear-gradient(to bottom, rgba(4, 3, 4, 0.6), rgba(4, 3, 4, 0.35) 50%, rgba(4, 3, 4, 0.8)); }
+.art--end {
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 100%, rgba(122, 28, 28, 0.5), transparent 70%),
+    linear-gradient(#050304, #0e0506 70%, #1a0708);
+}
+.end__ridge { --ridge: #030203; --h: 26%; }
+.end::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%;
+  z-index: 1;
+  background: linear-gradient(to bottom, transparent, #060607);
+  pointer-events: none;
+}
+
+.end__content { position: relative; z-index: 3; max-width: 62rem; }
+.end__content .label { margin-bottom: 1.8rem; }
+.end__title {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 9vw, 8.2rem);
+  line-height: 1.04;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #f0e9da;
+}
+.end__subtitle {
+  margin: 1.8rem 0 8vh;
+  font-style: italic;
+  font-size: clamp(1.4rem, 3vw, 2.3rem);
+  letter-spacing: 0.05em;
+  color: var(--gold-soft);
+}
+.end__epilogue { max-width: 36rem; margin: 0 auto; }
+.end__epilogue p { margin-bottom: 1.2rem; color: #cfc9bd; }
+
+
+/* ---------------------------------------------------------
+   6. FOOTER
+   --------------------------------------------------------- */
+.footer {
+  position: relative;
+  z-index: 2;
+  padding: 8vh 6vw 10vh;
+  background: #060607;
+  border-top: 1px solid var(--line);
+}
+.footer__inner { max-width: 44rem; margin: 0 auto; text-align: center; }
+.footer__title {
+  font-family: var(--f-head);
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.2rem;
+}
+.footer__text { font-size: 0.95rem; color: var(--muted); line-height: 1.7; }
+.footer__top {
+  display: inline-block;
+  margin-top: 2.4rem;
+  padding-bottom: 0.3rem;
+  font-family: var(--f-label);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--silver);
+  border-bottom: 1px solid var(--line);
+  transition: color 0.4s ease, border-color 0.4s ease;
+}
+.footer__top:hover { color: var(--gold-soft); border-color: var(--gold-soft); }
+
+
+/* ---------------------------------------------------------
+   7. TABLET AND MOBILE
+   --------------------------------------------------------- */
+@media (max-width: 1000px) {
+  .chapters { display: none; }
+
+  .world__columns { grid-template-columns: 1fr; margin-left: 0; }
+  .world__columns p:nth-child(1) { grid-row: auto; }
+  .facts { margin-top: 4rem; }
+
+  .kingdoms__head { margin-left: 0; }
+  .kingdoms__layout { grid-template-columns: 1fr; gap: 3rem; }
+  .region-panel { position: relative; top: 0; height: 56vh; min-height: 360px; }
+  .region-list li:nth-child(even) { padding-left: 1.5rem; }
+
+  .houses__head { margin-left: 0; }
+  .house--lannister { justify-content: center; }
+  .house--lannister .house__content { margin-right: 0; padding: 2.4rem; }
+  .house--greyjoy { justify-content: center; }
+  .house--greyjoy .house__content { margin-right: 0; }
+
+  .throne__layout { grid-template-columns: 1fr; }
+  .throne__figure { position: relative; height: 56vh; padding: 6vh 6vw 0; }
+  .throne__text { padding: 8vh 6vw 20vh; }
+  .throne__text .title-large { margin-bottom: 16vh; }
+  .throne__line { margin-bottom: 20vh; max-width: none; }
+
+  .timeline__line { left: 8px; }
+  .event { grid-template-columns: 1fr; gap: 1.6rem; padding-left: 2.4rem; margin-bottom: 10vh; }
+  .event::before { left: 8px; top: 8px; }
+  .event:nth-child(even) .event__art { order: 0; }
+  .event:nth-child(even) .event__body { order: 0; text-align: left; }
+  .event:nth-child(even) .event__body p:last-child { margin-left: 0; }
+  .js .event:nth-child(n) .event__art,
+  .js .event:nth-child(n) .event__body { transform: translateY(30px); }
+  .js .event.is-visible .event__art,
+  .js .event.is-visible .event__body { transform: none; }
+
+  .dragons__story { grid-template-columns: 1fr; margin-left: 0; }
+  .dragons__names li { grid-template-columns: 1fr; gap: 0.6rem; }
+  .wing { width: 90%; }
+
+  .nightking__grid { grid-template-columns: 1fr; gap: 2.4rem; }
+  .nightking__lead { position: relative; top: 0; }
+
+  .winterfell__text { margin-left: 0; }
+}
+
+@media (max-width: 600px) {
+  body { font-size: 1.12rem; }
+
+  .intro__content { margin-top: -4vh; }
+  .intro__title { letter-spacing: 0.02em; }
+
+  .world__landscape { height: 60vh; }
+  .facts { gap: 1.6rem 2rem; }
+
+  .region { grid-template-columns: 2.4rem 1fr; padding: 1.1rem 0; }
+  .region-panel__body { left: 1.4rem; right: 1.4rem; bottom: 1.4rem; }
+
+  .house { padding: 10vh 6vw; }
+  .house--baratheon { padding-left: 0; gap: 1.4rem; }
+  .house__band { margin: -10vh 0; flex-basis: 64px; font-size: 2rem; }
+  .house__frame { inset: 1rem; }
+  .house--lannister .house__content { padding: 1.8rem 1.4rem; }
+  .house__arch { padding: 12vh 6vw 7vh; }
+
+  .event__art { height: 220px; }
+
+  .winterfell { min-height: 100vh; }
+  .end { min-height: 100vh; }
+}
+
+
+/* ---------------------------------------------------------
+   8. REDUCED MOTION
+   For people who set their device to avoid animation
+   --------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .js [data-reveal],
+  .js [data-words] .w > span,
+  .js [data-letters] .ch,
+  .js .throne__line,
+  .js .event .event__art,
+  .js .event .event__body {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .intro__label,
+  .intro__subtitle,
+  .scroll-cue { opacity: 1; }
+
+  .js .intro__curtain { display: none; }
+}
+
+#musicBtn {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  z-index: 9999;
+  padding: 12px 20px;
+  background: rgba(10, 10, 10, 0.8);
+  color: #d6b36a;
+  border: 1px solid #d6b36a;
+  font-family: serif;
+  letter-spacing: 2px;
+  cursor: pointer;
+}
+
+#musicBtn:hover {
+  background: #d6b36a;
+  color: black;
+}

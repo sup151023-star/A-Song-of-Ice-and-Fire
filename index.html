@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A Song of Ice and Fire — The Story of Westeros</title>
+  <meta name="description" content="A cinematic scrolling retelling of the story of Westeros: the Seven Kingdoms, the Great Houses, the Iron Throne, the dragons and the long night.">
+  <meta name="theme-color" content="#0a0a0c">
+
+  <!-- Tells the CSS that JavaScript is running, so animations can be prepared safely -->
+  <script>document.documentElement.className = 'js';</script>
+
+  <!-- Fonts: Cinzel for headings, Cormorant Garamond for story text, Inter for tiny labels -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    
+<audio id="bgMusic" loop>
+  <source src="music/background.mp3" type="audio/mpeg">
+</audio>
+
+<button id="musicBtn">Play Music</button>
+
+
+  <!-- Reusable castle drawing (used in the intro and at Winterfell) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="castle" viewBox="0 0 600 300">
+        <g fill="currentColor">
+          <rect x="40" y="200" width="520" height="100"/>
+          <rect x="60" y="130" width="50" height="170"/>
+          <polygon points="55,130 85,70 115,130"/>
+          <rect x="490" y="140" width="50" height="160"/>
+          <polygon points="485,140 515,85 545,140"/>
+          <rect x="150" y="160" width="40" height="140"/>
+          <polygon points="146,160 170,115 194,160"/>
+          <rect x="410" y="165" width="36" height="135"/>
+          <polygon points="406,165 428,125 450,165"/>
+          <rect x="240" y="90" width="120" height="210"/>
+          <rect x="240" y="78" width="16" height="14"/>
+          <rect x="266" y="78" width="16" height="14"/>
+          <rect x="292" y="78" width="16" height="14"/>
+          <rect x="318" y="78" width="16" height="14"/>
+          <rect x="344" y="78" width="16" height="14"/>
+          <polygon points="285,78 300,10 315,78"/>
+          <rect x="40" y="190" width="14" height="12"/>
+          <rect x="70" y="190" width="14" height="12"/>
+          <rect x="100" y="190" width="14" height="12"/>
+          <rect x="450" y="190" width="14" height="12"/>
+          <rect x="480" y="190" width="14" height="12"/>
+          <rect x="540" y="190" width="14" height="12"/>
+        </g>
+        <g class="castle-windows" fill="#d9a441">
+          <rect x="82" y="165" width="6" height="12"/>
+          <rect x="512" y="175" width="6" height="12"/>
+          <rect x="167" y="190" width="6" height="12"/>
+          <rect x="425" y="195" width="6" height="12"/>
+          <rect x="270" y="130" width="6" height="14"/>
+          <rect x="324" y="130" width="6" height="14"/>
+          <rect x="297" y="165" width="6" height="14"/>
+          <rect x="285" y="230" width="30" height="40" rx="15"/>
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- Scroll progress bar (top of the page) -->
+  <div class="progress" aria-hidden="true"><span class="progress__bar"></span></div>
+
+  <!-- Floating embers, dust and snow (drawn by script.js) -->
+  <canvas class="particles" aria-hidden="true"></canvas>
+
+  <!-- Chapter indicator on the right edge -->
+  <nav class="chapters" aria-label="Chapters">
+    <ol>
+      <li><a href="#intro" data-label="Prologue"><span class="sr-only">Prologue</span></a></li>
+      <li><a href="#world" data-label="The World"><span class="sr-only">The World of Westeros</span></a></li>
+      <li><a href="#kingdoms" data-label="Seven Kingdoms"><span class="sr-only">The Seven Kingdoms</span></a></li>
+      <li><a href="#houses" data-label="Great Houses"><span class="sr-only">The Great Houses</span></a></li>
+      <li><a href="#throne" data-label="Iron Throne"><span class="sr-only">The Iron Throne</span></a></li>
+      <li><a href="#war" data-label="War of Five Kings"><span class="sr-only">The War of Five Kings</span></a></li>
+      <li><a href="#dragons" data-label="Dragons"><span class="sr-only">The Dragons</span></a></li>
+      <li><a href="#nightking" data-label="Night King"><span class="sr-only">The Night King</span></a></li>
+      <li><a href="#winterfell" data-label="Winterfell"><span class="sr-only">The Battle of Winterfell</span></a></li>
+      <li><a href="#end" data-label="The End"><span class="sr-only">The End</span></a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <!-- =====================================================
+         SECTION 1 — CINEMATIC INTRO
+         ===================================================== -->
+    <section class="intro" id="intro" data-mood="ember" aria-label="Introduction">
+      <div class="intro__curtain" aria-hidden="true"></div>
+
+      <div class="intro__scene" aria-hidden="true">
+        <div class="intro__sky" data-parallax="0.04"></div>
+        <div class="intro__moonglow" data-parallax="0.06"></div>
+        <div class="ridge ridge--a intro__far" data-parallax="0.08"></div>
+        <div class="ridge ridge--b intro__mid" data-parallax="0.12"></div>
+        <svg class="intro__castle" data-parallax="0.15" viewBox="0 0 600 300" preserveAspectRatio="xMidYMax meet">
+          <use href="#castle"/>
+        </svg>
+        <div class="fog fog--one"></div>
+        <div class="ridge ridge--a intro__near" data-parallax="0.2"></div>
+        <div class="fog fog--two"></div>
+        <img class="bg-img intro__photo" src="images/hero.jpg" alt="" onerror="this.remove()">
+        <div class="intro__vignette"></div>
+      </div>
+
+      <div class="intro__content">
+        <p class="label intro__label">A tale of ice, fire and ambition</p>
+        <h1 class="intro__title" data-letters aria-label="A Song of Ice and Fire">A Song of Ice and Fire</h1>
+        <p class="intro__subtitle">The Story of Westeros</p>
+      </div>
+
+      <a class="scroll-cue" href="#world" aria-label="Scroll to begin the story">
+        <span class="label">Scroll</span>
+        <span class="scroll-cue__line"></span>
+      </a>
+    </section>
+
+
+    <!-- =====================================================
+         SECTION 2 — THE WORLD OF WESTEROS
+         ===================================================== -->
+    <section class="world" id="world" data-mood="dust" aria-labelledby="world-title">
+      <div class="world__landscape">
+        <div class="scene__bg" data-parallax="0.12" aria-hidden="true">
+          <div class="scene__zoom" data-zoom="0.18">
+            <div class="art art--world"></div>
+            <img class="bg-img" src="images/westeros.jpg" alt="" loading="lazy" onerror="this.remove()">
+          </div>
+        </div>
+        <div class="ridge ridge--b world__ridge" aria-hidden="true"></div>
+        <p class="label world__caption" data-reveal>Chapter I</p>
+      </div>
+
+      <div class="world__text">
+        <h2 id="world-title" class="title-large" data-words>The World of Westeros</h2>
+
+        <div class="world__columns">
+          <p class="dropcap" data-reveal>
+            Westeros is a long, restless continent. Snow and ancient forests lie in the north, green farmland in the middle, deserts and warm seas in the far south.
+          </p>
+          <p data-reveal style="--d:.15s">
+            For thousands of years it was a patchwork of kingdoms at war. Then Aegon Targaryen arrived on dragonback and bound most of them under one crown. About three hundred years later, the story begins.
+          </p>
+          <p data-reveal style="--d:.3s">
+            Seven great regions still follow the Iron Throne in King's Landing, but loyalty is only as strong as the king who holds it. When one ruler dies, every lord begins to count his swords.
+          </p>
+        </div>
+
+        <ul class="facts" data-reveal>
+          <li><strong>700 ft</strong><span>height of the Wall of ice in the far north</span></li>
+          <li><strong>300 mi</strong><span>length of the Wall, guarded by the Night's Watch</span></li>
+          <li><strong>~300 years</strong><span>since Aegon's Conquest united the realm</span></li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         SECTION 3 — THE SEVEN KINGDOMS
+         ===================================================== -->
+    <section class="kingdoms" id="kingdoms" data-mood="dust" aria-labelledby="kingdoms-title">
+      <header class="kingdoms__head">
+        <p class="label" data-reveal>Chapter II</p>
+        <h2 id="kingdoms-title" class="title-large" data-words>The Seven Kingdoms</h2>
+        <p class="kingdoms__intro" data-reveal style="--d:.15s">
+          Before the Conquest, each of these lands had its own king. Choose a region to see its seat of power and the house that rules it.
+        </p>
+      </header>
+
+      <div class="kingdoms__layout">
+        <div class="region-panel" data-region="north" aria-live="polite">
+          <div class="region-panel__art" aria-hidden="true"></div>
+          <div class="region-panel__body">
+            <p class="label region-panel__house">House Stark</p>
+            <h3 class="region-panel__name">The North</h3>
+            <p class="region-panel__seat">Seat: Winterfell</p>
+            <p class="region-panel__text">The largest region of Westeros, cold, thinly settled and fiercely proud. It reaches from the Neck up to the Wall.</p>
+          </div>
+        </div>
+
+        <ol class="region-list">
+          <li>
+            <button class="region is-active" type="button" data-region="north" data-house="House Stark" data-seat="Winterfell" data-text="The largest region of Westeros, cold, thinly settled and fiercely proud. It reaches from the Neck up to the Wall.">
+              <span class="region__no">I</span>
+              <span class="region__name">The North</span>
+              <span class="region__seat">Winterfell</span>
+            </button>
+          </li>
+          <li>
+            <button class="region" type="button" data-region="vale" data-house="House Arryn" data-seat="The Eyrie" data-text="A fortress in the Mountains of the Moon so high that the clouds sit below its walls. Few armies can even reach it.">
+              <span class="region__no">II</span>
+              <span class="region__name">The Vale</span>
+              <span class="region__seat">The Eyrie</span>
+            </button>
+          </li>
+          <li>
+            <button class="region" type="button" data-region="riverlands" data-house="House Tully" data-seat="Riverrun" data-text="Rich land crossed by many rivers, right in the middle of the continent. Every army that marches has to cross it, so it suffers most in war.">
+              <span class="region__no">III</span>
+              <span class="region__name">The Riverlands</span>
+              <span class="region__seat">Riverrun</span>
+            </button>
+          </li>
+          <li>
+            <button class="region" type="button" data-region="westerlands" data-house="House Lannister" data-seat="Casterly Rock" data-text="A rocky coast above great gold mines. Its wealth has paid for the ambitions of House Lannister for generations.">
+              <span class="region__no">IV</span>
+              <span class="region__name">The Westerlands</span>
+              <span class="region__seat">Casterly Rock</span>
+            </button>
+          </li>
+          <li>
+            <button class="region" type="button" data-region="reach" data-house="House Tyrell" data-seat="Highgarden" data-text="Warm, fertile farmland that feeds much of the realm. The Reach can raise some of the largest armies in Westeros.">
+              <span class="region__no">V</span>
+              <span class="region__name">The Reach</span>
+              <span class="region__seat">Highgarden</span>
+            </button>
+          </li>
+          <li>
+            <button class="region" type="button" data-region="stormlands" data-house="House Baratheon" data-seat="Storm's End" data-text="A coast beaten by storms from the sea. Its lords are known for their courage, and for a fierce temper to match.">
+              <span class="region__no">VI</span>
+              <span class="region__name">The Stormlands</span>
+              <span class="region__seat">Storm's End</span>
+            </button>
+          </li>
+          <li>
+            <button class="region" type="button" data-region="dorne" data-house="House Martell" data-seat="Sunspear" data-text="A hot southern land of deserts and mountains. It was the last to join the realm, through marriage rather than conquest.">
+              <span class="region__no">VII</span>
+              <span class="region__name">Dorne</span>
+              <span class="region__seat">Sunspear</span>
+            </button>
+          </li>
+        </ol>
+      </div>
+
+      <p class="kingdoms__note" data-reveal>
+        Two more lands matter to the story: the Iron Islands, home of House Greyjoy at Pyke, and the Crownlands around King's Landing, where the Iron Throne stands.
+      </p>
+    </section>
+
+
+    <!-- =====================================================
+         SECTION 4 — THE GREAT HOUSES
+         ===================================================== -->
+    <section class="houses" id="houses" data-mood="dust" aria-labelledby="houses-title">
+      <header class="houses__head">
+        <p class="label" data-reveal>Chapter III</p>
+        <h2 id="houses-title" class="title-large" data-words>The Great Houses</h2>
+        <p data-reveal style="--d:.15s">Every house has a banner, a seat of power and a motto it will defend with its life. Six of them shaped the story more than any others.</p>
+      </header>
+
+      <!-- HOUSE STARK : cold, snowy, mysterious -->
+      <article class="house house--stark" data-mood="snow" aria-labelledby="stark-name">
+        <div class="house__bg" aria-hidden="true">
+          <div class="house__zoom" data-zoom="0.12">
+            <div class="art art--stark"></div>
+            <img class="bg-img" src="images/stark.jpg" alt="" loading="lazy" onerror="this.remove()">
+          </div>
+        </div>
+        <span class="house__ghost" aria-hidden="true">Stark</span>
+        <div class="house__content">
+          <p class="house__motto" data-reveal>“Winter Is Coming”</p>
+          <h3 id="stark-name" class="house__name" data-words>House Stark</h3>
+          <p class="house__seat label" data-reveal>Winterfell · The North · Sigil: a grey direwolf</p>
+          <p class="house__text" data-reveal style="--d:.15s">
+            The Wardens of the North have ruled from Winterfell for thousands of years. They are honorable, stubborn and used to the cold, and they are always the first to face whatever comes from beyond the Wall.
+          </p>
+        </div>
+      </article>
+
+      <!-- HOUSE LANNISTER : golden, powerful, royal -->
+      <article class="house house--lannister" data-mood="dust" aria-labelledby="lannister-name">
+        <div class="house__bg" aria-hidden="true">
+          <div class="house__zoom" data-zoom="0.1">
+            <div class="art art--lannister"></div>
+            <img class="bg-img" src="images/lannister.jpg" alt="" loading="lazy" onerror="this.remove()">
+          </div>
+        </div>
+        <div class="house__frame" aria-hidden="true"></div>
+        <div class="house__content">
+          <p class="house__motto" data-reveal>“Hear Me Roar!”</p>
+          <h3 id="lannister-name" class="house__name" data-words>House Lannister</h3>
+          <p class="house__seat label" data-reveal>Casterly Rock · The Westerlands · Sigil: a golden lion</p>
+          <p class="house__text" data-reveal style="--d:.15s">
+            The richest house in the realm, sitting on mountains of gold. Wealth and patience have made the Lannisters kingmakers, and they are ready to use both whenever the crown is within reach.
+          </p>
+        </div>
+      </article>
+
+      <!-- HOUSE TARGARYEN : fiery, ancient, dramatic -->
+      <article class="house house--targaryen" data-mood="ember" aria-labelledby="targaryen-name">
+        <div class="house__bg" aria-hidden="true">
+          <div class="house__zoom" data-zoom="0.16">
+            <div class="art art--targaryen"></div>
+            <img class="bg-img" src="images/targaryen.jpg" alt="" loading="lazy" onerror="this.remove()">
+          </div>
+        </div>
+        <div class="house__content">
+          <p class="house__motto" data-reveal>“Fire and Blood”</p>
+          <h3 id="targaryen-name" class="house__name" data-words>House Targaryen</h3>
+          <p class="house__seat label" data-reveal>Dragonstone · Sigil: a three-headed red dragon</p>
+          <p class="house__text" data-reveal style="--d:.15s">
+            A family from old Valyria, one of the few that escaped the Doom that destroyed it. They tamed dragons, took the Seven Kingdoms and ruled for nearly three centuries, until Robert's Rebellion ended their reign.
+          </p>
+        </div>
+      </article>
+
+      <!-- HOUSE BARATHEON : black and gold, stag banner -->
+      <article class="house house--baratheon" data-mood="dust" aria-labelledby="baratheon-name">
+        <div class="house__band" aria-hidden="true">
+          <span>Baratheon</span>
+        </div>
+        <div class="house__bg" aria-hidden="true">
+          <div class="house__zoom" data-zoom="0.1">
+            <div class="art art--baratheon"></div>
+            <img class="bg-img" src="images/baratheon.jpg" alt="" loading="lazy" onerror="this.remove()">
+          </div>
+        </div>
+        <div class="house__content">
+          <p class="house__motto" data-reveal>“Ours Is the Fury”</p>
+          <h3 id="baratheon-name" class="house__name" data-words>House Baratheon</h3>
+          <p class="house__seat label" data-reveal>Storm's End · The Stormlands · Sigil: a crowned black stag</p>
+          <p class="house__text" data-reveal style="--d:.15s">
+            Robert Baratheon led the rebellion against the Targaryens and took the Iron Throne for himself. He was a great warrior and a poor king, and the realm he left behind broke apart soon after his death.
+          </p>
+        </div>
+      </article>
+
+      <!-- HOUSE GREYJOY : the sea, salt and iron -->
+      <article class="house house--greyjoy" data-mood="dust" aria-labelledby="greyjoy-name">
+        <div class="house__bg" aria-hidden="true">
+          <div class="house__zoom" data-zoom="0.14">
+            <div class="art art--greyjoy"></div>
+            <img class="bg-img" src="images/greyjoy.jpg" alt="" loading="lazy" onerror="this.remove()">
+          </div>
+        </div>
+        <div class="house__waves" aria-hidden="true"></div>
+        <div class="house__content">
+          <p class="house__motto" data-reveal>“We Do Not Sow”</p>
+          <h3 id="greyjoy-name" class="house__name" data-words>House Greyjoy</h3>
+          <p class="house__seat label" data-reveal>Pyke · The Iron Islands · Sigil: a golden kraken</p>
+          <p class="house__text" data-reveal style="--d:.15s">
+            The Ironborn live on cold, rocky islands and take what they need from the sea and from their neighbours' shores. Balon Greyjoy tried to make the Iron Islands a kingdom again, and his children paid for it.
+          </p>
+        </div>
+      </article>
+
+      <!-- HOUSE TYRELL : roses, gardens, ambition -->
+      <article class="house house--tyrell" data-mood="dust" aria-labelledby="tyrell-name">
+        <div class="house__bg" aria-hidden="true">
+          <div class="house__zoom" data-zoom="0.1">
+            <div class="art art--tyrell"></div>
+            <img class="bg-img" src="images/tyrell.jpg" alt="" loading="lazy" onerror="this.remove()">
+          </div>
+        </div>
+        <div class="house__arch">
+          <div class="house__content">
+            <p class="house__motto" data-reveal>“Growing Strong”</p>
+            <h3 id="tyrell-name" class="house__name" data-words>House Tyrell</h3>
+            <p class="house__seat label" data-reveal>Highgarden · The Reach · Sigil: a golden rose</p>
+            <p class="house__text" data-reveal style="--d:.15s">
+              Lords of the most fertile land in Westeros, with enough food and soldiers to tip any war. They are charming, patient and ambitious, and they know how to marry into power.
+            </p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+
+    <!-- =====================================================
+         SECTION 5 — THE IRON THRONE
+         ===================================================== -->
+    <section class="throne" id="throne" data-mood="ember" aria-labelledby="throne-title">
+      <div class="throne__bg" aria-hidden="true">
+        <div class="scene__zoom" data-zoom="0.1">
+          <div class="art art--throne"></div>
+          <img class="bg-img" src="images/throne.jpg" alt="" loading="lazy" onerror="this.remove()">
+        </div>
+      </div>
+
+      <div class="throne__layout">
+        <div class="throne__figure" aria-hidden="true">
+           
+            <defs>
+              <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#8a8d93"/>
+                <stop offset="0.5" stop-color="#3b3d42"/>
+                <stop offset="1" stop-color="#101012"/>
+              </linearGradient>
+            </defs>
+            <g fill="url(#steel)">
+              <polygon points="-7,0 7,0 0,-200" transform="translate(300,440) rotate(-72)"/>
+              <polygon points="-7,0 7,0 0,-260" transform="translate(300,440) rotate(-63)"/>
+              <polygon points="-6,0 6,0 0,-230" transform="translate(300,440) rotate(-54)"/>
+              <polygon points="-7,0 7,0 0,-300" transform="translate(300,440) rotate(-45)"/>
+              <polygon points="-6,0 6,0 0,-270" transform="translate(300,440) rotate(-36)"/>
+              <polygon points="-8,0 8,0 0,-340" transform="translate(300,440) rotate(-27)"/>
+              <polygon points="-6,0 6,0 0,-310" transform="translate(300,440) rotate(-18)"/>
+              <polygon points="-8,0 8,0 0,-390" transform="translate(300,440) rotate(-9)"/>
+              <polygon points="-9,0 9,0 0,-430" transform="translate(300,440) rotate(0)"/>
+              <polygon points="-8,0 8,0 0,-380" transform="translate(300,440) rotate(9)"/>
+              <polygon points="-6,0 6,0 0,-315" transform="translate(300,440) rotate(18)"/>
+              <polygon points="-8,0 8,0 0,-335" transform="translate(300,440) rotate(27)"/>
+              <polygon points="-6,0 6,0 0,-275" transform="translate(300,440) rotate(36)"/>
+              <polygon points="-7,0 7,0 0,-295" transform="translate(300,440) rotate(45)"/>
+              <polygon points="-6,0 6,0 0,-225" transform="translate(300,440) rotate(54)"/>
+              <polygon points="-7,0 7,0 0,-255" transform="translate(300,440) rotate(63)"/>
+              <polygon points="-7,0 7,0 0,-205" transform="translate(300,440) rotate(72)"/>
+              <polygon points="-5,0 5,0 0,-170" transform="translate(300,440) rotate(-80)"/>
+              <polygon points="-5,0 5,0 0,-170" transform="translate(300,440) rotate(80)"/>
+              <polygon points="-4,0 4,0 0,-360" transform="translate(300,440) rotate(-4)"/>
+              <polygon points="-4,0 4,0 0,-350" transform="translate(300,440) rotate(14)"/>
+              <polygon points="-4,0 4,0 0,-320" transform="translate(300,440) rotate(-22)"/>
+            </g>
+            <path d="M170 440 L430 440 L450 520 L150 520 Z" fill="#0c0c0e"/>
+            <path d="M205 380 L395 380 L410 440 L190 440 Z" fill="#17171a"/>
+            <path d="M150 520 L450 520" stroke="#b8924a" stroke-opacity=".35" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <div class="throne__text">
+          <p class="label" data-reveal>Chapter IV</p>
+          <h2 id="throne-title" class="title-large" data-words>The Iron Throne</h2>
+
+          <p class="throne__line" data-scrub>
+            Legend says the Iron Throne was forged from the swords of Aegon's defeated enemies, melted together by the breath of his dragon, Balerion.
+          </p>
+          <p class="throne__line" data-scrub>
+            The blades are twisted and sharp on purpose. Aegon wanted no king to sit comfortably.
+          </p>
+          <p class="throne__line" data-scrub>
+            Many have wanted the chair. Aerys Targaryen, the Mad King, was overthrown. Robert Baratheon took it after a rebellion. Joffrey, Tommen and Cersei held it after him, each one ruling through fear.
+          </p>
+          <p class="throne__line" data-scrub>
+            In the end it was Daenerys Targaryen who reached King's Landing with an army and her last dragon. Her fire took the city, and then Drogon melted the Throne itself.
+          </p>
+          <p class="throne__line throne__line--final" data-scrub>
+            The chair was gone, but the struggle over who would rule was not.
+          </p>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         SECTION 6 — THE WAR OF FIVE KINGS
+         ===================================================== -->
+    <section class="war" id="war" data-mood="ember" aria-labelledby="war-title">
+      <header class="war__head">
+        <p class="label" data-reveal>Chapter V</p>
+        <h2 id="war-title" class="title-large" data-words>The War of Five Kings</h2>
+        <p data-reveal style="--d:.15s">
+          When King Robert died, the realm split. Joffrey, Robb Stark, Renly Baratheon, Stannis Baratheon and Balon Greyjoy each claimed a crown. This is how the war went.
+        </p>
+      </header>
+
+      <div class="timeline">
+        <div class="timeline__line" aria-hidden="true"><span></span></div>
+
+        <ol class="timeline__list">
+          <li class="event">
+            <div class="event__art" aria-hidden="true">
+              <div class="event__art-inner art art--event1" data-parallax="0.06" data-parallax-local><img class="event__photo" src="images/event1.jpg" alt="" loading="lazy"></div>
+            </div>
+            <div class="event__body">
+              <p class="event__tag label">The spark</p>
+              <h3 class="event__title">A king dies, a boy takes his place</h3>
+              <p>After Robert's death, Joffrey is crowned. He has Eddard Stark arrested for treason and beheaded in front of the Great Sept of Baelor.</p>
+            </div>
+          </li>
+
+          <li class="event">
+            <div class="event__art" aria-hidden="true">
+              <div class="event__art-inner art art--event2" data-parallax="0.06" data-parallax-local><img class="event__photo" src="images/event2.jpg" alt="" loading="lazy"></div>
+            </div>
+            <div class="event__body">
+              <p class="event__tag label">Five crowns</p>
+              <h3 class="event__title">The North will not kneel</h3>
+              <p>Robb Stark's bannermen declare him King in the North. Renly and Stannis each claim the Iron Throne, and Balon Greyjoy declares the Iron Islands a kingdom again.</p>
+            </div>
+          </li>
+
+          <li class="event">
+            <div class="event__art" aria-hidden="true">
+              <div class="event__art-inner art art--event3" data-parallax="0.06" data-parallax-local><img class="event__photo" src="images/event3.jpg" alt="" loading="lazy"></div>
+            </div>
+            <div class="event__body">
+              <p class="event__tag label">First blood</p>
+              <h3 class="event__title">The Whispering Wood</h3>
+              <p>Robb outmaneuvers a Lannister army at night and wins a great victory. Jaime Lannister is taken prisoner.</p>
+            </div>
+          </li>
+
+          <li class="event">
+            <div class="event__art" aria-hidden="true">
+              <div class="event__art-inner art art--event4" data-parallax="0.06" data-parallax-local><img class="event__photo" src="images/event4.jpg" alt="" loading="lazy"></div>
+            </div>
+            <div class="event__body">
+              <p class="event__tag label">A shadow in the tent</p>
+              <h3 class="event__title">Renly is murdered</h3>
+              <p>Renly Baratheon is killed in his own camp by a shadow, born from the magic of Melisandre. His army scatters, and the Tyrells soon ally with the Lannisters.</p>
+            </div>
+          </li>
+
+          <li class="event">
+            <div class="event__art" aria-hidden="true">
+              <div class="event__art-inner art art--event5" data-parallax="0.06" data-parallax-local><img class="event__photo" src="images/event5.jpg" alt="" loading="lazy"></div>
+            </div>
+            <div class="event__body">
+              <p class="event__tag label">Green fire</p>
+              <h3 class="event__title">The Battle of the Blackwater</h3>
+              <p>Stannis attacks King's Landing by sea. Tyrion's wildfire burns his fleet, and Tywin Lannister arrives with the Tyrell army to break the siege.</p>
+            </div>
+          </li>
+
+          <li class="event">
+            <div class="event__art" aria-hidden="true">
+              <div class="event__art-inner art art--event6" data-parallax="0.06" data-parallax-local><img class="event__photo" src="images/event6.jpg" alt="" loading="lazy"></div>
+            </div>
+            <div class="event__body">
+              <p class="event__tag label">The cruelest night</p>
+              <h3 class="event__title">The Red Wedding</h3>
+              <p>At the Twins, Walder Frey and Roose Bolton betray the Starks. Robb, his mother Catelyn and much of the northern army are slaughtered at a wedding feast. The war in the North ends there.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         SECTION 7 — THE DRAGONS
+         ===================================================== -->
+    <section class="dragons" id="dragons" data-mood="ember" aria-labelledby="dragons-title">
+      <div class="dragons__bg" aria-hidden="true">
+        <div class="scene__zoom" data-zoom="0.3">
+          <div class="art art--dragons"></div>
+          <img class="bg-img" src="images/dragons.jpg" alt="" loading="lazy" onerror="this.remove()">
+          <svg class="wing wing--left" viewBox="0 0 620 300" preserveAspectRatio="xMaxYMid meet">
+            <path d="M0 200 L300 10 Q310 90 380 120 L480 40 Q480 120 520 160 L600 90 Q590 190 560 230 L610 230 Q540 280 440 270 Q360 300 0 260 Z"/>
+          </svg>
+          <svg class="wing wing--right" viewBox="0 0 620 300" preserveAspectRatio="xMinYMid meet">
+            <path d="M0 200 L300 10 Q310 90 380 120 L480 40 Q480 120 520 160 L600 90 Q590 190 560 230 L610 230 Q540 280 440 270 Q360 300 0 260 Z"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="dragons__content">
+        <p class="label" data-reveal>Chapter VI</p>
+        <h2 id="dragons-title" class="title-huge" data-words>Fire Made Flesh</h2>
+
+        <div class="dragons__story">
+          <p data-reveal>
+            Dragons had been dead for generations, and most people thought they were only stories. Then Daenerys Targaryen stepped into Khal Drogo's funeral pyre and walked out alive, with three newborn dragons on her shoulders.
+          </p>
+          <p data-reveal style="--d:.15s">
+            She named them after the men she had lost. Drogon for her husband, Rhaegal for her brother Rhaegar, and Viserion for her brother Viserys.
+          </p>
+        </div>
+
+        <ul class="dragons__names">
+          <li data-reveal>
+            <span class="dragon-name">Drogon</span>
+            <span class="dragon-note">The largest and most fierce. He survived the war and carried Daenerys away at its end.</span>
+          </li>
+          <li data-reveal style="--d:.1s">
+            <span class="dragon-name">Rhaegal</span>
+            <span class="dragon-note">Shot down by Euron Greyjoy's fleet near Dragonstone.</span>
+          </li>
+          <li data-reveal style="--d:.2s">
+            <span class="dragon-name">Viserion</span>
+            <span class="dragon-note">Killed by the Night King beyond the Wall, and raised again as an undead dragon with blue eyes.</span>
+          </li>
+        </ul>
+
+        <p class="dragons__closing" data-reveal>
+          Three centuries earlier, Aegon the Conqueror had flown on Balerion the Black Dread, the largest dragon the world had ever known. A single dragon was once enough to change the fate of a continent.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         SECTION 8 — THE NIGHT KING
+         ===================================================== -->
+    <section class="nightking" id="nightking" data-mood="snow" aria-labelledby="nightking-title">
+      <div class="nightking__bg" aria-hidden="true">
+        <div class="scene__zoom" data-zoom="0.12">
+          <div class="art art--nightking"></div>
+          <img class="bg-img" src="images/nightking.jpg" alt="" loading="lazy" onerror="this.remove()">
+        </div>
+        <div class="fog fog--cold fog--one"></div>
+        <div class="fog fog--cold fog--two"></div>
+      </div>
+
+      <div class="nightking__content">
+        <p class="label" data-reveal>Chapter VII</p>
+        <h2 id="nightking-title" class="title-large" data-words>The Night King</h2>
+
+        <div class="nightking__grid">
+          <p class="nightking__lead" data-reveal>
+            Beyond the Wall, the cold is older than any kingdom, and something moves in it.
+          </p>
+          <div class="nightking__body">
+            <p data-reveal>
+              The White Walkers are an ancient race of ice. Thousands of years ago, the Children of the Forest created the first of them to fight the invading First Men. The experiment went wrong, and their weapon turned on everyone.
+            </p>
+            <p data-reveal style="--d:.1s">
+              Their leader is the Night King. Every person he kills can be raised as a wight, a corpse that obeys him. The dead do not tire and do not fear, and they are only ever on his side.
+            </p>
+            <p data-reveal style="--d:.2s">
+              For centuries the Night's Watch has guarded the Wall against them, but many in the south believe the threat is just a story. By the time the realm took notice, the dead were already marching.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         SECTION 9 — THE BATTLE OF WINTERFELL
+         ===================================================== -->
+    <section class="winterfell" id="winterfell" data-mood="snow" aria-labelledby="winterfell-title">
+      <div class="winterfell__bg" aria-hidden="true">
+        <div class="scene__zoom" data-zoom="0.2">
+          <div class="art art--winterfell"></div>
+          <img class="bg-img" src="images/battle.jpg" alt="" loading="lazy" onerror="this.remove()">
+        </div>
+        
+        <div class="fog fog--cold fog--one"></div>
+        <div class="ridge ridge--b winterfell__ridge"></div>
+      </div>
+
+      <div class="winterfell__content">
+        <p class="label" data-reveal>Chapter VIII</p>
+        <h2 id="winterfell-title" class="title-huge" data-words>The Long Night</h2>
+        <p class="winterfell__subtitle" data-reveal>The Battle of Winterfell</p>
+
+        <div class="winterfell__text">
+          <p data-reveal>
+            The living made their stand at Winterfell, with Starks, Targaryens, Dothraki, Unsullied and the Knights of the Vale all fighting behind the same walls.
+          </p>
+          <p data-reveal style="--d:.1s">
+            The Dothraki charged into the dark with flaming swords, and the light vanished one blade at a time. The dead overran the castle's defences, and the living were forced back into the keep.
+          </p>
+          <p data-reveal style="--d:.2s">
+            Theon Greyjoy died protecting Bran in the godswood. In the end Arya Stark slipped through the chaos and drove a Valyrian steel dagger into the Night King. He shattered, and every one of his dead fell with him.
+          </p>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         SECTION 10 — THE END
+         ===================================================== -->
+    <section class="end" id="end" data-mood="ember" aria-labelledby="end-title">
+      <div class="end__bg" aria-hidden="true">
+        <div class="scene__zoom" data-zoom="0.14">
+          <div class="art art--end"></div>
+          <img class="bg-img" src="images/ending.jpg" alt="" loading="lazy" onerror="this.remove()">
+        </div>
+        <div class="ridge ridge--a end__ridge"></div>
+      </div>
+
+      <div class="end__content">
+        <p class="label" data-reveal>Chapter IX</p>
+        <h2 id="end-title" class="end__title" data-words>The Game of Thrones</h2>
+        <p class="end__subtitle" data-reveal>Every crown has a cost.</p>
+
+        <div class="end__epilogue">
+          <p data-reveal>
+            When the war was done, the great lords gathered and chose Bran Stark as king of the Six Kingdoms. Sansa Stark was crowned Queen in the North, and Westeros was divided again, this time by agreement.
+          </p>
+          <p data-reveal style="--d:.1s">
+            Jon Snow went back to the far north, beyond the Wall, and the long game of thrones was finally over.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <p class="footer__title">A Song of Ice and Fire</p>
+      <p class="footer__text">
+        A fan-made tribute built with HTML, CSS and JavaScript. It is not affiliated with HBO, and the stories and characters belong to George R. R. Martin and their respective owners.
+      </p>
+      <a class="footer__top" href="#intro">Return to the beginning</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
